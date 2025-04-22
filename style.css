@@ -7,6 +7,15 @@ body {
     margin: 0;
 }
 
+#app-header {
+    background-color: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
 #quiz-container {
     text-align: center;
 }
