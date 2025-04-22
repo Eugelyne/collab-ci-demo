@@ -1,92 +1,126 @@
-// Quiz questions and answers
-const quizData = [
-    {
-        question: "What is the capital of France?",
-        options: ["Berlin", "Paris", "London", "Rome"],
-        correct: 1
+// Updated quiz data with categories
+const quizData = {
+    Science: [
+        {
+        question: "What is the chemical symbol for water?",
+        options: ["H2O", "O2", "CO2", "NaCl"],
+        correct: 0
     },
     {
-        question: "What is the largest planet in our solar system?",
-        options: ["Earth", "Saturn", "Jupiter", "Uranus"],
-        correct: 2
-    },
-    {
-        question: "Who painted the Starry Night?",
-        options: ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Claude Monet"],
+        question: "What planet is known as the Red Planet?",
+        options: ["Earth", "Mars", "Jupiter", "Venus"],
         correct: 1
     }
-];
+    ],
+    History: [
+        {
+        question: "Who was the first President of the United States?",
+        options: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"],
+        correct: 2
 
-let currentQuestion = 0;
-let score = 0;
-
-function testHeaderExists() {
-    const header = document.getElementById('app-header');
-    console.assert(header !== null, 'Header should exist');
-    console.assert(header.querySelector('h1').textContent === 'Quiz App', 'Header title should be "Quiz App"');
-    console.log('testHeaderExists passed');
-}
-
-  // Run test after DOM loads
-window.onload = () => {
-    testHeaderExists();
+    },
+    {
+        question: "In which year did World War II end?",
+        options: ["1945", "1939", "1918", "1963"],
+        correct: 0
+    }
+    ]
 };
 
+let currentCategory = null;
+let currentQuestionIndex = 0;
+let score = 0;
+let questions = [];
 
-// Function to load the quiz
+  // Function to select category
+function selectCategory(category) {
+    currentCategory = category;
+    questions = quizData[category];
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById("category-selection").style.display = "none";
+    document.getElementById("quiz-container").style.display = "block";
+    loadQuiz();
+}
+
+  // Load quiz question
 function loadQuiz() {
     const questionElement = document.getElementById("question");
     const optionsElement = document.getElementById("options");
     const submitButton = document.getElementById("submit");
+    const resultElement = document.getElementById("result");
+    const scoreElement = document.getElementById("score");
+ 
+    resultElement.textContent = "";
+    scoreElement.textContent = `Score: ${score} / ${currentQuestionIndex}`;
 
-    questionElement.textContent = quizData[currentQuestion].question;
+    if (currentQuestionIndex >= questions.length) {
+        questionElement.textContent = "Quiz Finished!";
+        optionsElement.innerHTML = "";
+        submitButton.style.display = "none";
+        scoreElement.textContent = `Final Score: ${score} / ${questions.length}`;
+        return;
+    }
+
+    questionElement.textContent = questions[currentQuestionIndex].question;
 
     optionsElement.innerHTML = "";
-    quizData[currentQuestion].options.forEach((option, index) => {
+    questions[currentQuestionIndex].options.forEach((option, index) => {
         const li = document.createElement("li");
         const radio = document.createElement("input");
         const label = document.createElement("label");
-
         radio.type = "radio";
         radio.name = "option";
         radio.value = index;
-
         label.textContent = option;
-
         li.appendChild(radio);
         li.appendChild(label);
         optionsElement.appendChild(li);
     });
 
-    submitButton.addEventListener("click", checkAnswer);
+    submitButton.style.display = "inline-block";
 }
 
-// Function to check the answer
+  // Check answer and progress
 function checkAnswer() {
     const selectedOption = document.querySelector('input[name="option"]:checked');
-    if (selectedOption) {
-        const isCorrect = selectedOption.value == quizData[currentQuestion].correct;
-        if (isCorrect) {
-            score++;
-        }
+    const resultElement = document.getElementById("result");
 
-        document.getElementById("result").textContent = isCorrect ? "Correct!" : "Incorrect.";
-        document.getElementById("score").textContent = `Score: ${score} / ${currentQuestion + 1}`;
-
-        currentQuestion++;
-        if (currentQuestion < quizData.length) {
-            loadQuiz();
-        } else {
-            document.getElementById("question").textContent = "Quiz Finished!";
-            document.getElementById("options").innerHTML = "";
-            document.getElementById("submit").style.display = "none";
-            document.getElementById("result").textContent = "";
-            document.getElementById("score").textContent = `Final Score: ${score} / ${quizData.length}`;
-        }
-    } else {
+    if (!selectedOption) {
         alert("Please select an option.");
+        return;
     }
+
+    const isCorrect = parseInt(selectedOption.value) === questions[currentQuestionIndex].correct;
+    if (isCorrect) {
+        score++;
+        resultElement.textContent = "Correct!";
+    } else {
+        resultElement.textContent = "Incorrect.";
+    }
+
+    currentQuestionIndex++;
+    loadQuiz();
 }
 
-// Start the quiz
-loadQuiz();
+  // Initial setup: display category selection
+function setupCategories() {
+    const categoryContainer = document.getElementById("category-selection");
+    categoryContainer.innerHTML = "";
+
+    Object.keys(quizData).forEach(category => {
+        const btn = document.createElement("button");
+        btn.textContent = category;
+        btn.onclick = () => selectCategory(category);
+        categoryContainer.appendChild(btn);
+    });
+
+    document.getElementById("quiz-container").style.display = "none";
+    categoryContainer.style.display = "block";
+}
+
+  // Event listener for submit button
+document.getElementById("submit").addEventListener("click", checkAnswer);
+
+  // Initialize app
+setupCategories();
