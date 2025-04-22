@@ -1,0 +1,50 @@
+name: CI/CD
+
+on:
+  push:
+    branches: feature/add-quiz-categories
+  pull_request:
+    branches: feature/add-quiz-categories
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -f package.json ]; then
+            npm test
+          else
+            echo "No test script found."
+          fi
+
+  deploy:
+    name: Deploy Static Page
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ exists('index.html') }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
