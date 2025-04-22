@@ -20,6 +20,19 @@ const quizData = [
 let currentQuestion = 0;
 let score = 0;
 
+function testHeaderExists() {
+    const header = document.getElementById('app-header');
+    console.assert(header !== null, 'Header should exist');
+    console.assert(header.querySelector('h1').textContent === 'Quiz App', 'Header title should be "Quiz App"');
+    console.log('testHeaderExists passed');
+}
+
+  // Run test after DOM loads
+window.onload = () => {
+    testHeaderExists();
+};
+
+
 // Function to load the quiz
 function loadQuiz() {
     const questionElement = document.getElementById("question");
